@@ -1,3 +1,8 @@
+/**
+ * 数据文件在 public/data/ 下，构建后随站点一起发布。
+ * 用 import.meta.env.BASE_URL 拼路径，兼容 GitHub Pages 子路径部署。
+ */
+const dataUrl = (file: string) => `${import.meta.env.BASE_URL}data/${file}`
 export type FngPoint = {
   value: number
   classification: string
@@ -10,7 +15,7 @@ export type FngPoint = {
  * 这样访问快、且可离线查看；运行 `pnpm fetch-data` 更新。
  */
 export async function fetchFng(): Promise<FngPoint[]> {
-  const res = await fetch('/data/fng.json')
+  const res = await fetch(dataUrl('fng.json'))
   if (!res.ok) throw new Error(`本地指数数据读取失败 HTTP ${res.status}`)
   const arr = (await res.json()) as Array<{
     timestamp: number
@@ -35,7 +40,7 @@ export function dateKey(tsSeconds: number): string {
  * 返回按 UTC 日期索引的收盘价 Map。
  */
 export async function fetchBtcPrices(): Promise<Map<string, number>> {
-  const res = await fetch('/data/btc.json')
+  const res = await fetch(dataUrl('btc.json'))
   if (!res.ok) throw new Error(`本地 BTC 数据读取失败 HTTP ${res.status}`)
   const arr = (await res.json()) as Array<{ t: number; c: number }>
   const map = new Map<string, number>()
