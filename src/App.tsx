@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import FngChart from './components/FngChart'
+import BtcChart from './components/BtcChart'
 import { RecentTable, ZoneLegend } from './components/FngPanels'
 import { dateKey, fetchBtcPrices, fetchFng, fmtFullDate, fmtFullPrice, zoneOf, type FngPoint } from './lib/fng'
 
@@ -77,10 +78,10 @@ export default function App() {
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-6 py-5">
           <div>
             <h1 className="text-xl font-bold tracking-tight text-slate-900">
-              Crypto Fear &amp; Greed Index
+              情绪指标
             </h1>
             <p className="mt-0.5 text-xs text-slate-500">
-              加密货币市场情绪 + BTC 价格 · 指数来源{' '}
+              BTC 价格 + 恐慌贪婪指数 + 牛熊周期 · 指数来源{' '}
               <a
                 href="https://alternative.me/crypto/fear-and-greed-index/"
                 target="_blank"
@@ -132,24 +133,48 @@ export default function App() {
             <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
               <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
                 <div>
-                  <h2 className="text-sm font-semibold text-slate-900">历史走势 · 指数 vs BTC</h2>
-                  <p className="text-xs text-slate-500">
-                    {rangeLabel}
-                  </p>
+                  <h2 className="text-sm font-semibold text-slate-900">历史走势 · 上下对比</h2>
+                  <p className="text-xs text-slate-500">{rangeLabel}</p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
-                    指数 {latest.value} · {zoneOf(latest.value).name}
-                  </span>
-                  <span className="text-xs text-slate-400">左轴 0–100 · 右轴 BTC</span>
+                <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
+                  指数 {latest.value} · {zoneOf(latest.value).name}
+                </span>
+              </div>
+
+              <div className="space-y-6">
+                <div>
+                  <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                    <h3 className="text-xs font-semibold text-slate-700">BTC 价格（USD 日线收盘）</h3>
+                    <div className="flex items-center gap-3">
+                      <span className="flex items-center gap-1.5 text-[11px] text-slate-400">
+                        <span className="h-2 w-2 rounded-full bg-yellow-400" />
+                        牛市
+                        <span className="ml-1 h-2 w-2 rounded-full bg-red-500" />
+                        熊市
+                      </span>
+                      {latest?.btc != null && (
+                        <span className="text-[11px] font-semibold text-amber-600">
+                          {fmtFullPrice(latest.btc)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <BtcChart data={merged} startIndex={brush?.startIndex} endIndex={brush?.endIndex} />
+                </div>
+
+                <div className="border-t border-slate-100 pt-5">
+                  <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                    <h3 className="text-xs font-semibold text-slate-700">恐慌与贪婪指数</h3>
+                    <span className="text-[11px] text-slate-400">0–100 · 拖动下方滑块选择区间</span>
+                  </div>
+                  <FngChart
+                    data={merged}
+                    startIndex={brush?.startIndex}
+                    endIndex={brush?.endIndex}
+                    onBrushChange={(startIndex, endIndex) => setBrush({ startIndex, endIndex })}
+                  />
                 </div>
               </div>
-              <FngChart
-                data={merged}
-                startIndex={brush?.startIndex}
-                endIndex={brush?.endIndex}
-                onBrushChange={(startIndex, endIndex) => setBrush({ startIndex, endIndex })}
-              />
             </section>
 
             <div className="grid gap-6 lg:grid-cols-3">
@@ -176,3 +201,6 @@ export default function App() {
     </div>
   )
 }
+
+
+
